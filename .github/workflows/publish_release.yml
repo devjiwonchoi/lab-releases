@@ -39,6 +39,13 @@ jobs:
       - run: pnpm install
       - run: pnpm run build
 
+      - name: Check if it's a publish commit
+        run: |
+          if [[ $(node ./scripts/check-is-release.js 2> /dev/null || :) != v* ]]; then
+            echo "Not a publish commit, exiting..."
+            exit 1
+          fi
+
       - run: npm i -g npm@10.4.0 # need latest version for provenance (pinning to avoid bugs)
       - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
       - run: ./scripts/publish-release.js
