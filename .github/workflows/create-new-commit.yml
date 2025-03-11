@@ -1,0 +1,28 @@
+name: Create New Commit
+
+on:
+  schedule:
+    # run every 30 minutes
+    - cron: '*/30 * * * *'
+
+jobs:
+  start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Create and Push Changes
+        run: |
+          echo "Hello World" > test.txt
+          
+          git add .
+          git commit -m "chore: automated changes"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
