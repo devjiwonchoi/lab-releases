@@ -20,7 +20,7 @@ jobs:
 
       - name: Create and Push Changes
         run: |
-          echo "$(date)" > .github/assets/new-commit.txt
+          mkdir --parents .github/assets && echo "$(date)" > .github/assets/new-commit.txt
           git add .
           git commit -m "chore: automated changes"
           git push
