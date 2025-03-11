@@ -62,7 +62,7 @@ jobs:
       - run: pnpm run build
 
       - run: npm i -g npm@10.4.0 # need latest version for provenance (pinning to avoid bugs)
-      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN_ELEVATED" >> ~/.npmrc
       - run: ./scripts/publish-release.js
         env:
           RELEASE_BOT_GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
