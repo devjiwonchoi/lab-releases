@@ -29,11 +29,6 @@ on:
 
 name: Trigger Release
 
-env:
-  NAPI_CLI_VERSION: 2.14.7
-  TURBO_VERSION: 2.3.3
-  NODE_LTS_VERSION: 20
-
 jobs:
   start:
     if: github.repository_owner == 'devjiwonchoi'
@@ -53,7 +48,7 @@ jobs:
       - name: Check token
         run: gh auth status
         env:
-          RELEASE_BOT_GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
 
       - name: Get commit of the latest tag
         run: echo "LATEST_TAG_COMMIT=$(git rev-list -n 1 $(git describe --tags --abbrev=0))" >> $GITHUB_ENV
