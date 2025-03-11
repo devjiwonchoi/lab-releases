@@ -7,7 +7,29 @@ on:
   workflow_dispatch:
 
 jobs:
+  checkIsRelease:
+    name: Check if it's a publish commit
+    runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.check-is-release.outputs.value }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Check if it's a publish commit
+        id: check-is-release
+        run: |
+          if [[ $(node ./scripts/check-is-release.js 2> /dev/null || :) = v* ]]; then
+            echo "value=true" >> $GITHUB_OUTPUT
+          else
+            echo "value=false" >> $GITHUB_OUTPUT
+          fi
+
   publishRelease:
+    if: needs.checkIsRelease.outputs.value == 'true'
+    needs:
+      - checkIsRelease
     name: Potentially publish release
     runs-on: ubuntu-latest
     permissions:
@@ -38,13 +60,6 @@ jobs:
 
       - run: pnpm install
       - run: pnpm run build
-
-      - name: Check if it's a publish commit
-        run: |
-          if [[ $(node ./scripts/check-is-release.js 2> /dev/null || :) != v* ]]; then
-            echo "Not a publish commit, exiting..."
-            exit 1
-          fi
 
       - run: npm i -g npm@10.4.0 # need latest version for provenance (pinning to avoid bugs)
       - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
