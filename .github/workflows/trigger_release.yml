@@ -1,3 +1,5 @@
+name: Trigger Release
+
 on:
   schedule:
     # run every hour
@@ -26,8 +28,6 @@ on:
         description: create a new release even if there are no new commits
         default: false
         type: boolean
-
-name: Trigger Release
 
 jobs:
   start:
