@@ -1,10 +1,10 @@
 {
   "name": "@devjiwonchoi/lab-releases-main-70d04b9b-5a2d-40ec-b656-d130fb8e0413",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "main": "index.js",
   "type": "module",
   "dependencies": {
-    "@devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413": "0.1.0"
+    "@devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413": "1.0.0"
   },
   "keywords": []
 }
