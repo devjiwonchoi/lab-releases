@@ -1,5 +1,16 @@
 # @devjiwonchoi/lab-releases-main-70d04b9b-5a2d-40ec-b656-d130fb8e0413
 
+## 1.0.0
+
+### Major Changes
+
+- 627782d: v1
+
+### Patch Changes
+
+- Updated dependencies [627782d]
+  - @devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413@1.0.0
+
 ## 0.1.1
 
 ### Patch Changes
