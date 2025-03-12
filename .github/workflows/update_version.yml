@@ -38,7 +38,7 @@ jobs:
         run: pnpm changeset version
 
       - name: Commit if has changes
-        run: node ./scripts/commit-if-has-change.mjs
+        run: node ./scripts/commit-if-has-change.js
         env:
           RELEASE_BOT_GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
 

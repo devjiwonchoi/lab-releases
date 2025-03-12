@@ -1,8 +1,7 @@
-import { execSync } from 'child_process'
-
+const { execSync } = require('child_process')
+const { version } = require('../packages/main/package.json')
 
 function main() {
-  const version = require('../packages/main/package.json').version
   const githubToken = process.env.RELEASE_BOT_GITHUB_TOKEN
 
   if (!githubToken) {
