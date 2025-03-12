@@ -19,9 +19,6 @@ function main() {
       return
     }
 
-    // Update for lockfile diff.
-    execSync('pnpm install')
-
     execSync(
       `git remote set-url origin https://devjiwonchoi:${githubToken}@github.com/devjiwonchoi/lab-releases.git`
     )

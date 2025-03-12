@@ -37,6 +37,9 @@ jobs:
       - name: Run changeset version
         run: pnpm changeset version
 
+      - name: Re-install to prevent lockfile diff
+        run: pnpm install
+
       - name: Commit if has changes
         run: node ./scripts/commit-if-has-change.js
         env:
