@@ -9,9 +9,6 @@ function main() {
     return
   }
 
-  const args = process.argv
-  const message = args[args.indexOf('--message') + 1]
-
   try {
     const status = execSync('git status --porcelain').toString()
     if (!status) {
@@ -25,7 +22,7 @@ function main() {
     execSync('git config user.name "devjiwonchoi"')
     execSync('git config user.email "devjiwonchoi@gmail.com"')
     execSync('git add .')
-    execSync(`git commit -m "${message || `v${version}`}"`)
+    execSync(`git commit -m "v${version}"`)
     execSync('git push')
   } catch (error) {
     console.error('Error during git operations:', error)
