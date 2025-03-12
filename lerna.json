@@ -1,8 +1,16 @@
 {
   "$schema": "node_modules/lerna/schemas/lerna-schema.json",
   "version": "0.0.2-canary.19",
-  "packages": [
-    "packages/*"
-  ],
-  "npmClient": "pnpm"
+  "packages": ["packages/*"],
+  "npmClient": "pnpm",
+  "command": {
+    "version": {
+      "exact": true
+    },
+    "publish": {
+      "npmClient": "npm",
+      "allowBranch": ["canary"],
+      "registry": "https://registry.npmjs.org"
+    }
+  }
 }
