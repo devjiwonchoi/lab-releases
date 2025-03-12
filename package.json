@@ -1,7 +1,12 @@
 {
   "scripts": {
+    "cha": "pnpm changeset add",
+    "chv": "pnpm changeset version",
+    "chp": "pnpm changeset publish",
+    "chpen": "pnpm changeset pre enter canary",
+    "chpex": "pnpm changeset pre exit canary",
     "build": "echo 'noop: build success!'",
-    "release": "pnpm changeset version && pnpm changeset publish"
+    "release": "pnpm version && pnpm publish"
   },
   "devDependencies": {
     "@changesets/cli": "2.28.1"
