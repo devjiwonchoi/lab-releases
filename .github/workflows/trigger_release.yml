@@ -12,6 +12,8 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/canary'
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
