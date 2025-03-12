@@ -1,5 +1,11 @@
 # @devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413
 
+## 1.0.1-canary.0
+
+### Patch Changes
+
+- 634dbd7: bump patch
+
 ## 1.0.0
 
 ### Major Changes

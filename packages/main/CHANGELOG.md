@@ -1,5 +1,18 @@
 # @devjiwonchoi/lab-releases-main-70d04b9b-5a2d-40ec-b656-d130fb8e0413
 
+## 1.1.0-canary.0
+
+### Minor Changes
+
+- 634dbd7: minor
+
+### Patch Changes
+
+- 634dbd7: bump patch
+- 634dbd7: patc
+- Updated dependencies [634dbd7]
+  - @devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413@1.0.1-canary.0
+
 ## 1.0.1
 
 ### Patch Changes
