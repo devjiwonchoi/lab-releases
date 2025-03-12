@@ -1,10 +1,10 @@
 # @devjiwonchoi/lab-releases-main-70d04b9b-5a2d-40ec-b656-d130fb8e0413
 
-## 1.0.1-canary.0
+## 1.0.1
 
 ### Patch Changes
 
-- 812245b: main patch
+- a0d6f25: main patch
 
 ## 1.0.0
 
