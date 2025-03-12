@@ -1,1 +1,1 @@
-export const sub = 'sub' + 1741788663755
+export const sub = 'sub-v1'
