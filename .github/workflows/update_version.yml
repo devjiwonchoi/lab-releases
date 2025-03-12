@@ -1,4 +1,4 @@
-name: Trigger Release
+name: Update Version
 
 on:
   schedule:
@@ -31,13 +31,14 @@ jobs:
           npm i -g corepack@0.31
           corepack enable
 
-      - run: pnpm install
+      - name: Install dependencies
+        run: pnpm install
 
-      - name: Create Release Pull Request or Publish to npm
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          publish: pnpm run release
+      - name: Run changeset version
+        run: pnpm changeset version
+
+      - name: Commit if has changes
+        run: node ./scripts/commit-if-has-change.mjs
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
+          RELEASE_BOT_GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
+
