@@ -30,7 +30,7 @@ importers:
   packages/main:
     dependencies:
       '@devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413':
-        specifier: 0.1.0
+        specifier: 1.0.0
         version: link:../sub
 
   packages/sub: {}
