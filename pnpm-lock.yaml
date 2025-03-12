@@ -16,15 +16,19 @@ importers:
         version: 2.0.3
       lerna:
         specifier: ^8.2.1
-        version: 8.2.1
+        version: 8.2.1(encoding@0.1.13)
       release:
         specifier: 6.3.1
-        version: 6.3.1
+        version: 6.3.1(encoding@0.1.13)
       resolve-from:
         specifier: 5.0.0
         version: 5.0.0
 
-  packages/main: {}
+  packages/main:
+    dependencies:
+      '@devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413':
+        specifier: workspace:*
+        version: link:../sub
 
   packages/sub: {}
 
@@ -2742,7 +2746,7 @@ snapshots:
     dependencies:
       '@sinclair/typebox': 0.27.8
 
-  '@lerna/create@8.2.1(typescript@5.8.2)':
+  '@lerna/create@8.2.1(encoding@0.1.13)(typescript@5.8.2)':
     dependencies:
       '@npmcli/arborist': 7.5.4
       '@npmcli/package-json': 5.2.0
@@ -2782,7 +2786,7 @@ snapshots:
       make-dir: 4.0.0
       minimatch: 3.0.5
       multimatch: 5.0.0
-      node-fetch: 2.6.7
+      node-fetch: 2.6.7(encoding@0.1.13)
       npm-package-arg: 11.0.2
       npm-packlist: 8.0.2
       npm-registry-fetch: 17.1.0
@@ -3068,7 +3072,7 @@ snapshots:
       '@octokit/types': 13.8.0
       universal-user-agent: 6.0.1
 
-  '@octokit/rest@15.2.6':
+  '@octokit/rest@15.2.6(encoding@0.1.13)':
     dependencies:
       before-after-hook: 1.4.0
       btoa-lite: 1.0.0
@@ -3076,7 +3080,7 @@ snapshots:
       http-proxy-agent: 2.1.0
       https-proxy-agent: 2.2.4
       lodash: 4.17.21
-      node-fetch: 2.6.7
+      node-fetch: 2.6.7(encoding@0.1.13)
       url-template: 2.0.8
     transitivePeerDependencies:
       - encoding
@@ -3530,6 +3534,7 @@ snapshots:
       import-fresh: 3.3.1
       js-yaml: 4.1.0
       parse-json: 5.2.0
+    optionalDependencies:
       typescript: 5.8.2
 
   cross-spawn@4.0.2:
@@ -4331,9 +4336,9 @@ snapshots:
 
   lazy-cache@1.0.4: {}
 
-  lerna@8.2.1:
+  lerna@8.2.1(encoding@0.1.13):
     dependencies:
-      '@lerna/create': 8.2.1(typescript@5.8.2)
+      '@lerna/create': 8.2.1(encoding@0.1.13)(typescript@5.8.2)
       '@npmcli/arborist': 7.5.4
       '@npmcli/package-json': 5.2.0
       '@npmcli/run-script': 8.1.0
@@ -4378,7 +4383,7 @@ snapshots:
       make-dir: 4.0.0
       minimatch: 3.0.5
       multimatch: 5.0.0
-      node-fetch: 2.6.7
+      node-fetch: 2.6.7(encoding@0.1.13)
       npm-package-arg: 11.0.2
       npm-packlist: 8.0.2
       npm-registry-fetch: 17.1.0
@@ -4675,9 +4680,11 @@ snapshots:
 
   node-fetch@2.6.1: {}
 
-  node-fetch@2.6.7:
+  node-fetch@2.6.7(encoding@0.1.13):
     dependencies:
       whatwg-url: 5.0.0
+    optionalDependencies:
+      encoding: 0.1.13
 
   node-gyp@10.3.1:
     dependencies:
@@ -5171,9 +5178,9 @@ snapshots:
     dependencies:
       rc: 1.2.8
 
-  release@6.3.1:
+  release@6.3.1(encoding@0.1.13):
     dependencies:
-      '@octokit/rest': 15.2.6
+      '@octokit/rest': 15.2.6(encoding@0.1.13)
       args: 4.0.0
       async-retry: 1.2.1
       capitalize: 1.0.0
