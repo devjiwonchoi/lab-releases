@@ -1,1 +1,1 @@
-export const main = 'main' + 1741788663754
+export const main = 'main-v1'
