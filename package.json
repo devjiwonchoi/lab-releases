@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "build": "echo 'noop: build success!'"
+    "build": "echo 'noop: build success!'",
+    "release": "pnpm changeset version && pnpm changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "2.28.1",
