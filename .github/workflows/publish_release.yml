@@ -1,0 +1,75 @@
+name: Publish Release
+
+on:
+  push:
+    # TODO: Run only on canary pushes but PR syncs.
+    # Requires checking if CI is approved
+  workflow_dispatch:
+
+jobs:
+  checkIsRelease:
+    name: Check if it's a publish commit
+    runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.check-is-release.outputs.value }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Check if it's a publish commit
+        id: check-is-release
+        run: |
+          if [[ $(node ./scripts/check-is-release.js 2> /dev/null || :) = v* ]]; then
+            echo "value=true" >> $GITHUB_OUTPUT
+          else
+            echo "value=false" >> $GITHUB_OUTPUT
+          fi
+
+  publishRelease:
+    if: needs.checkIsRelease.outputs.value == 'true'
+    needs:
+      - checkIsRelease
+    name: Potentially publish release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      NPM_TOKEN_ELEVATED: ${{ secrets.NPM_TOKEN_ELEVATED }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          check-latest: true
+
+      - name: Setup corepack
+        run: |
+          npm i -g corepack@0.31
+          corepack enable
+
+      # https://github.com/actions/virtual-environments/issues/1187
+      - name: tune linux network
+        run: sudo ethtool -K eth0 tx off rx off
+
+      - run: pnpm install
+      - run: pnpm run build
+
+      - run: npm i -g npm@10.4.0 # need latest version for provenance (pinning to avoid bugs)
+      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN_ELEVATED" >> ~/.npmrc
+      - run: ./scripts/publish-release.js
+        env:
+          RELEASE_BOT_GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
+
+      - name: Upload npm log artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: npm-publish-logs
+          path: /home/runner/.npm/_logs/*
