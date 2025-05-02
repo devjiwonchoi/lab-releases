@@ -67,7 +67,7 @@ async function main() {
       : 'prerelease'
 
   console.log('testing, added a commit')
-  await execa(`echo "random commit" > random.txt`, {
+  await execa(`echo "random commit" > random.txt && git add random.txt`, {
     stdio: 'inherit',
     shell: true,
   })
