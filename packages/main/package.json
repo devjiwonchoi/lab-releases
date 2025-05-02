@@ -1,9 +1,9 @@
 {
   "name": "@devjiwonchoi/lab-releases-main-70d04b9b-5a2d-40ec-b656-d130fb8e0413",
-  "version": "0.0.2-canary.20",
+  "version": "0.0.2-canary.21",
   "main": "index.js",
   "type": "module",
   "dependencies": {
-    "@devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413": "0.0.2-canary.20"
+    "@devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413": "0.0.2-canary.21"
   }
 }
