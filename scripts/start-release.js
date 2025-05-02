@@ -79,13 +79,10 @@ async function main() {
   )
 
   console.log('testing, added a commit')
-  await execa(
-    `echo "random commit" > random.txt && git add random.txt && git commit -m "chore: add random commit"`,
-    {
-      stdio: 'inherit',
-      shell: true,
-    }
-  )
+  await execa(`echo "random commit" > random.txt`, {
+    stdio: 'inherit',
+    shell: true,
+  })
 
   child.stdout?.pipe(process.stdout)
   child.stderr?.pipe(process.stderr)
