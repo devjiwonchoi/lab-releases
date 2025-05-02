@@ -66,6 +66,12 @@ async function main() {
       ? 'preminor'
       : 'prerelease'
 
+  console.log('testing, added a commit')
+  await execa(`echo "random commit" > random.txt`, {
+    stdio: 'inherit',
+    shell: true,
+  })
+
   const child = execa(
     isCanary
       ? `pnpm lerna version ${preleaseType} --preid canary --force-publish -y && pnpm release --pre --skip-questions --show-url`
@@ -77,12 +83,6 @@ async function main() {
       shell: true,
     }
   )
-
-  console.log('testing, added a commit')
-  await execa(`echo "random commit" > random.txt`, {
-    stdio: 'inherit',
-    shell: true,
-  })
 
   child.stdout?.pipe(process.stdout)
   child.stderr?.pipe(process.stderr)
