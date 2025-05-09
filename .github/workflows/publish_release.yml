@@ -7,48 +7,20 @@ on:
   workflow_dispatch:
 
 jobs:
-  checkIsRelease:
-    name: Check if it's a publish commit
-    runs-on: ubuntu-latest
-    outputs:
-      value: ${{ steps.check-is-release.outputs.value }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-      - name: Check if it's a publish commit
-        id: check-is-release
-        run: |
-          if [[ $(node ./scripts/check-is-release.js 2> /dev/null || :) = v* ]]; then
-            echo "value=true" >> $GITHUB_OUTPUT
-          else
-            echo "value=false" >> $GITHUB_OUTPUT
-          fi
-
   publishRelease:
-    if: needs.checkIsRelease.outputs.value == 'true'
-    needs:
-      - checkIsRelease
     name: Potentially publish release
     runs-on: ubuntu-latest
     permissions:
       contents: write
       id-token: write
     env:
-      NPM_TOKEN_ELEVATED: ${{ secrets.NPM_TOKEN_ELEVATED }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: ${{ env.NODE_LTS_VERSION }}
           check-latest: true
-
       - name: Setup corepack
         run: |
           npm i -g corepack@0.31
@@ -58,12 +30,22 @@ jobs:
       - name: tune linux network
         run: sudo ethtool -K eth0 tx off rx off
 
-      - run: pnpm install
-      - run: pnpm run build
+      - uses: actions/cache@v4
+        timeout-minutes: 5
+        id: restore-build
+        with:
+          path: ./*
+          # Cache includes repo checkout which is required for later scripts
+          fail-on-cache-miss: true
+          key: ${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ github.sha }}-${{ github.run_number }}
+            ${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt}}
 
       - run: npm i -g npm@10.4.0 # need latest version for provenance (pinning to avoid bugs)
-      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN_ELEVATED" >> ~/.npmrc
-      - run: node ./scripts/publish-release.js
+      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run: ./scripts/publish-release.js
+      - run: pnpm tsx ./scripts/release/publish-release.ts
         env:
           RELEASE_BOT_GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
 
