@@ -95,6 +95,8 @@ jobs:
         with:
           version: pnpm ci:version
           publish: pnpm ci:publish
+          title: ${{ github.event.inputs.releaseType }}
+          commit: ${{ github.event.inputs.releaseType }}
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
