@@ -23,6 +23,7 @@ env:
   NODE_LTS_VERSION: 20
 
 permissions:
+  pull-requests: write
 
 jobs:
   start:
