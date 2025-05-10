@@ -22,6 +22,8 @@ env:
   TURBO_VERSION: 2.3.3
   NODE_LTS_VERSION: 20
 
+permissions:
+
 jobs:
   start:
     if: github.repository_owner == 'devjiwonchoi'
@@ -110,4 +112,4 @@ jobs:
         if: steps.changesets.outputs.pullRequestNumber
         run: gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --add-label "release-workflow"
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
