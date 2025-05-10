@@ -10,7 +10,7 @@ on:
         options:
           # - canary
           - stable
-          # - release-candidate
+          - release-candidate
 
       force:
         description: Forced Release
@@ -24,7 +24,7 @@ env:
 
 jobs:
   start:
-    if: github.repository_owner == 'devjiwonchoi'
+    if: github.repository_owner == 'vercel'
     runs-on: ubuntu-latest
     env:
       NEXT_TELEMETRY_DISABLED: 1
@@ -40,8 +40,12 @@ jobs:
           node-version: ${{ env.NODE_LTS_VERSION }}
           check-latest: true
 
+      # Since actions/checkout won't include the latest tag information,
+      # use the old clone workflow while still preserving branch specific
+      # checkout behavior to support backports.
+      # x-ref: https://github.com/vercel/next.js/pull/63167
       - name: Clone Next.js repository
-        run: git clone https://github.com/devjiwonchoi/lab-releases.git --depth=25 --single-branch --branch ${GITHUB_REF_NAME:-canary} .
+        run: git clone https://github.com/vercel/next.js.git --depth=25 --single-branch --branch ${GITHUB_REF_NAME:-canary} .
 
       - name: Check token
         run: gh auth status
@@ -98,3 +102,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
+          RELEASE_TYPE: ${{ github.event.inputs.releaseType }}
