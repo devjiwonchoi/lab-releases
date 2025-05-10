@@ -24,7 +24,7 @@ env:
 
 jobs:
   start:
-    if: github.repository_owner == 'vercel'
+    if: github.repository_owner == 'devjiwonchoi'
     runs-on: ubuntu-latest
     env:
       NEXT_TELEMETRY_DISABLED: 1
@@ -40,12 +40,8 @@ jobs:
           node-version: ${{ env.NODE_LTS_VERSION }}
           check-latest: true
 
-      # Since actions/checkout won't include the latest tag information,
-      # use the old clone workflow while still preserving branch specific
-      # checkout behavior to support backports.
-      # x-ref: https://github.com/vercel/next.js/pull/63167
       - name: Clone Next.js repository
-        run: git clone https://github.com/vercel/next.js.git --depth=25 --single-branch --branch ${GITHUB_REF_NAME:-canary} .
+        run: git clone https://github.com/devjiwonchoi/lab-releases.git --depth=25 --single-branch --branch ${GITHUB_REF_NAME:-canary} .
 
       - name: Check token
         run: gh auth status
