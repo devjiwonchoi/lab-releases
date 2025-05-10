@@ -24,7 +24,7 @@ env:
 
 jobs:
   start:
-    if: github.repository_owner == 'vercel'
+    if: github.repository_owner == 'devjiwonchoi'
     runs-on: ubuntu-latest
     env:
       NEXT_TELEMETRY_DISABLED: 1
