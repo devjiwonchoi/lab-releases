@@ -1,25 +1,36 @@
-import { exec } from 'node:child_process'
+import execa from 'execa'
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
 
 async function versionPackages() {
+  const preConfigPath = join(process.cwd(), '.changeset', 'pre.json')
+
+  // Exit previous pre mode to prepare for the next release.
+  if (existsSync(preConfigPath)) {
+    if (require(preConfigPath).mode !== 'exit') {
+      // Since current repository is in pre mode, need
+      // to exit before versioning the packages.
+      await execa('pnpm', ['changeset', 'pre', 'exit'], {
+        stdio: 'inherit',
+      })
+    }
+  }
+
   const releaseType = process.env.RELEASE_TYPE
-  if (!releaseType) {
-    throw new Error('RELEASE_TYPE is not set.')
+
+  if (releaseType === 'canary') {
+    // Enter pre mode as "canary" tag.
+    await execa('pnpm', ['changeset', 'pre', 'enter', 'canary'], {
+      stdio: 'inherit',
+    })
   }
 
-  if (releaseType === 'stable') {
-    // Exit pre mode in case we're in it.
-    await exec('pnpm changeset pre exit')
-  }
-
-  if (releaseType === 'release-candidate') {
-    // Exit pre mode in case we're in it.
-    await exec('pnpm changeset pre exit')
-    // Enter pre mode as "rc" tag.
-    await exec('pnpm changeset pre enter rc')
-  }
-
-  await exec('pnpm changeset version')
-  await exec('pnpm install --no-frozen-lockfile')
+  await execa('pnpm', ['changeset', 'version'], {
+    stdio: 'inherit',
+  })
+  await execa('pnpm', ['install', '--no-frozen-lockfile'], {
+    stdio: 'inherit',
+  })
 }
 
 versionPackages()
