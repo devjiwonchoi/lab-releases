@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "build": "echo 'building...'"
+    "build": "echo 'building...'",
+    "ci:version": "changeset version && pnpm install --no-frozen-lockfile",
+    "ci:publish": "changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "2.28.1",
