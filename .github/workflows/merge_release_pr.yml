@@ -5,7 +5,9 @@ on: pull_request
 jobs:
   merge-release-pr:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.user.login == 'devjiwonchoi'
+    if: |
+      github.event.pull_request.user.login == 'devjiwonchoi' &&
+      github.event.pull_request.labels == 'created-by: CI'
     steps:
       - name: Bypass required status checks and merge PR
         run: gh pr merge --admin --squash "$PR_URL"
