@@ -16,11 +16,11 @@ const checkIsRelease = async () => {
   const newPublishMsgRegex =
     /^Version Packages \((canary|release-candidate|stable)\)$/
 
-  if (
-    publishMsgRegex.test(versionString) ||
-    newPublishMsgRegex.test(commitMsg)
-  ) {
+  if (publishMsgRegex.test(versionString)) {
     console.log(versionString)
+    process.exit(0)
+  } else if (newPublishMsgRegex.test(commitMsg)) {
+    console.log(commitMsg)
     process.exit(0)
   } else {
     console.log('not publish commit', { commitId, commitMsg, versionString })
