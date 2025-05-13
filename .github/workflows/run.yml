@@ -17,6 +17,8 @@ jobs:
       - run: |
           if [[ $(node ./scripts/check-is-release.js 2> /dev/null || :) =~ ^Version\ Packages\ (canary|release-candidate|stable)$ ]]; then
             echo "__TESTING=true" >> $GITHUB_ENV
+          else
+            echo "Not matching. Got: $(node ./scripts/check-is-release.js 2> /dev/null || :)"
           fi
       - run: |
           echo "Shell command: $__TESTING"
