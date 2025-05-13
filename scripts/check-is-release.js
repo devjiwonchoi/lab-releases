@@ -18,7 +18,7 @@ const checkIsRelease = async () => {
 
   if (
     publishMsgRegex.test(versionString) ||
-    newPublishMsgRegex.test(versionString)
+    newPublishMsgRegex.test(commitMsg)
   ) {
     console.log(versionString)
     process.exit(0)
