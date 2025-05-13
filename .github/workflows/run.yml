@@ -20,6 +20,6 @@ jobs:
           else
             echo "Not matching. Got: $(node ./scripts/check-is-release.js 2> /dev/null || :)"
           fi
-      - run: |
+            |
           echo "Shell command: $__TESTING"
           echo "Workflow expression: ${{ env.__TESTING }}"
