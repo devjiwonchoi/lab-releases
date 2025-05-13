@@ -14,9 +14,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - run: if [[ $(node ./scripts/check-is-release.js 2> /dev/null || :) =~ ^Version\ Packages\ (canary|release-candidate|stable)$ ]];
-          then
+      - run: |
+          if [[ $(node ./scripts/check-is-release.js 2> /dev/null || :) =~ ^Version\ Packages\ (canary|release-candidate|stable)$ ]]; then
             echo "__TESTING=true" >> $GITHUB_ENV
+          fi
       - run: |
           echo "Shell command: $__TESTING"
           echo "Workflow expression: ${{ env.__TESTING }}"
