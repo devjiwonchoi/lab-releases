@@ -39,7 +39,7 @@ importers:
   packages/main:
     dependencies:
       '@devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413':
-        specifier: 1.1.0-canary.4
+        specifier: 1.1.0-canary.5
         version: link:../sub
 
   packages/sub: {}
