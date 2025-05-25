@@ -100,16 +100,17 @@ async function publishNpm() {
     })
 
     const packagePath = join(packagesDir, pkgJson.name)
-
-    const dryRun = process.env.DRY_RUN === 'true' ? '--dry-run' : ''
+    const dryRun =
+      // --no-git-checks to bypass "publish-branch" restriction.
+      process.env.DRY_RUN === 'true' ? ['--dry-run', '--no-git-checks'] : []
 
     if (dryRun) {
       console.log(
-        `Running dry run command: "pnpm publish ${packagePath} --tag ${tag} --dry-run" for ${pkgJson.name}@${pkgJson.version}`
+        `Running dry run command: "pnpm publish ${packagePath} --tag ${tag} --dry-run --no-git-checks" for ${pkgJson.name}@${pkgJson.version}`
       )
     }
 
-    await execa('pnpm', ['publish', packagePath, '--tag', tag, dryRun], {
+    await execa('pnpm', ['publish', packagePath, '--tag', tag, ...dryRun], {
       stdio: 'inherit',
     })
   }
