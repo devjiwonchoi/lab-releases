@@ -56,6 +56,7 @@ jobs:
 
       # New release process
       - name: Publish to NPM
+        if: ${{ steps.deploy-target.outputs.value != 'skipped' }}
         id: changesets
         uses: changesets/action@v1
         with:
