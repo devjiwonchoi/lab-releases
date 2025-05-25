@@ -61,7 +61,9 @@ async function publishNpm() {
     throw new Error('NPM_TOKEN is not set')
   }
 
-  const packageDirs = await readdir(join(process.cwd(), 'packages'), {
+  const packagesDir = join(process.cwd(), 'packages')
+
+  const packageDirs = await readdir(packagesDir, {
     withFileTypes: true,
   })
 
@@ -97,7 +99,17 @@ async function publishNpm() {
       latest: tags.latest,
     })
 
-    await execa('pnpm', ['publish', '--tag', tag], {
+    const packagePath = join(packagesDir, pkgJson.name)
+
+    const dryRun = process.env.DRY_RUN === 'true' ? '--dry-run' : ''
+
+    if (dryRun) {
+      console.log(
+        `Running dry run command: "pnpm publish ${packagePath} --tag ${tag} --dry-run" for ${pkgJson.name}@${pkgJson.version}`
+      )
+    }
+
+    await execa('pnpm', ['publish', packagePath, '--tag', tag, dryRun], {
       stdio: 'inherit',
     })
   }
