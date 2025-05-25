@@ -38,6 +38,7 @@ jobs:
         run: |
           # TODO: Remove the new release check once the new release workflow is fully replaced.
           RELEASE_CHECK=$(node ./scripts/check-is-release.js 2> /dev/null || :)
+          echo "RELEASE_CHECK: $RELEASE_CHECK"
           if [[ $RELEASE_CHECK = "new-release" ]];
           then
             echo "__NEW_RELEASE=true" >> $GITHUB_ENV
