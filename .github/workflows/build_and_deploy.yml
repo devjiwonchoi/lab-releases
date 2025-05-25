@@ -61,6 +61,9 @@ jobs:
         uses: changesets/action@v1
         with:
           publish: pnpm ci:publish
+          # Don't create GH release when is dry run. There is no good way to test it
+          # as draft depending on changesets/action ATM.
+          createGithubReleases: ${{ github.ref != 'refs/heads/release/dry-run' }}
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
