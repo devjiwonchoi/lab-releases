@@ -66,13 +66,6 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
           DRY_RUN: ${{ github.ref == 'refs/heads/release/dry-run' }}
 
-      # Add label to verify the PR is created from this workflow.
-      - name: Add label to PR
-        if: steps.changesets.outputs.pullRequestNumber
-        run: 'gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --add-label "created-by: CI"'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       # - name: Send a Slack notification of the publish status
       #   run: pnpm tsx scripts/release/slack.ts
       #   env:
