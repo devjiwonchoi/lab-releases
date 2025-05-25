@@ -99,7 +99,7 @@ async function publishNpm() {
       latest: tags.latest,
     })
 
-    const packagePath = join(packagesDir, pkgJson.name)
+    const packagePath = join(packagesDir, packageDir.name)
     const dryRun =
       // --no-git-checks to bypass "publish-branch" restriction.
       process.env.DRY_RUN === 'true' ? ['--dry-run', '--no-git-checks'] : []
