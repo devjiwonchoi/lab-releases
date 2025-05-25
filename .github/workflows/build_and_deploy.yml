@@ -9,8 +9,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  publishRelease:
+  deploy-target:
     runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.deploy-target.outputs.value }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,7 +26,10 @@ jobs:
         run: |
           npm i -g corepack@0.31
           corepack enable
-
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build
+        run: pnpm run build
       - name: Determine deploy target
         # 'force-preview' performs a full preview build but only if acknowledged i.e. workflow_dispatch
         # 'automated-preview' for pushes on branches other than 'canary' for integration testing.
@@ -53,6 +58,24 @@ jobs:
           fi
       - name: Print deploy target
         run: echo "Deploy target is '${{ steps.deploy-target.outputs.value }}'"
+
+  publishRelease:
+    needs: [deploy-target]
+    if: ${{ needs.deploy-target.outputs.value != 'skipped' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          check-latest: true
+      - name: Setup corepack
+        run: |
+          npm i -g corepack@0.31
+          corepack enable
 
       # New release process
       - name: Publish to NPM
