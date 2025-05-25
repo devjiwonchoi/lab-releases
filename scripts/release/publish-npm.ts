@@ -99,15 +99,17 @@ async function publishNpm() {
       latest: tags.latest,
     })
 
+    const packagePath = join(packagesDir, pkgJson.name)
+
     const dryRun = process.env.DRY_RUN === 'true' ? '--dry-run' : ''
 
     if (dryRun) {
       console.log(
-        `Running dry run command: "pnpm publish --tag ${tag} --dry-run" for ${pkgJson.name}@${pkgJson.version}`
+        `Running dry run command: "pnpm publish ${packagePath} --tag ${tag} --dry-run" for ${pkgJson.name}@${pkgJson.version}`
       )
     }
 
-    await execa('pnpm', ['publish', '--tag', tag, dryRun], {
+    await execa('pnpm', ['publish', packagePath, '--tag', tag, dryRun], {
       stdio: 'inherit',
     })
   }
