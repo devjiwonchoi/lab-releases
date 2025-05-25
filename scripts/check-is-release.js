@@ -18,14 +18,21 @@ const checkIsRelease = async () => {
   // in the message when co-authored, so split and get the first one.
   const newPublishPrMessage = commitMsg.split('\n')[0]
 
+  console.log({ see: newPublishMsgRegex.test(newPublishPrMessage) })
+
   if (publishMsgRegex.test(versionString)) {
     console.log(versionString)
     process.exit(0)
-  } else if (newPublishMsgRegex.test(commitMsg)) {
+  } else if (newPublishMsgRegex.test(newPublishPrMessage)) {
     console.log('new-release')
     process.exit(0)
   } else {
-    console.log('not publish commit', { commitId, commitMsg, versionString })
+    console.log('not publish commit', {
+      commitId,
+      commitMsg,
+      newPublishPrMessage,
+      versionString,
+    })
     process.exit(1)
   }
 }
