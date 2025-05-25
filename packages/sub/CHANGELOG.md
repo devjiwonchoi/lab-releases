@@ -1,5 +1,11 @@
 # @devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413
 
+## 1.1.1
+
+### Patch Changes
+
+- [#21](https://github.com/devjiwonchoi/lab-releases/pull/21) [`5bedec8`](https://github.com/devjiwonchoi/lab-releases/commit/5bedec874263e07692c6694fb9da71ee85109f78) Thanks [@devjiwonchoi](https://github.com/devjiwonchoi)! - test patch
+
 ## 1.1.0
 
 ### Patch Changes
