@@ -76,10 +76,14 @@ jobs:
         run: |
           npm i -g corepack@0.31
           corepack enable
+      - name: Install dependencies
+        run: pnpm install
+      - name: Build
+        run: pnpm run build
 
       # New release process
       - name: Publish to NPM
-        if: ${{ steps.deploy-target.outputs.value != 'skipped' }}
+        if: ${{ needs.deploy-target.outputs.value != 'skipped' }}
         id: changesets
         uses: changesets/action@v1
         with:
