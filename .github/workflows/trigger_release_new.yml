@@ -1,12 +1,20 @@
 name: Trigger Release (New)
 
 on:
+  # Run every day at 23:15 UTC
+  # TODO: Disabled cron for now, but uncomment
+  # once replaced the old release workflow.
+  # schedule:
+  #   - cron: '15 23 * * *'
+  # Run manually
   workflow_dispatch:
     inputs:
       releaseType:
         description: Release Type
         required: true
         type: choice
+        # Cron job will run canary release
+        default: canary
         options:
           - canary
           - stable
@@ -17,25 +25,26 @@ on:
         default: false
         type: boolean
 
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
 env:
   NAPI_CLI_VERSION: 2.14.7
   TURBO_VERSION: 2.3.3
   NODE_LTS_VERSION: 20
 
 permissions:
+  # To create PR
   pull-requests: write
 
 jobs:
   start:
-    if: github.repository_owner == 'devjiwonchoi'
+    # Only run on `canary` or `release/dry-run` branch.
+    if: >-
+      github.repository_owner == 'devjiwonchoi' &&
+      (github.ref == 'refs/heads/canary' || github.ref == 'refs/heads/release/dry-run')
     runs-on: ubuntu-latest
-    env:
-      NEXT_TELEMETRY_DISABLED: 1
-      # we build a dev binary for use in CI so skip downloading
-      # canary next-swc binaries in the monorepo
-      NEXT_SKIP_NATIVE_POSTINSTALL: 1
 
-    environment: release-${{ github.event.inputs.releaseType || 'canary' }}
+    environment: release-${{ github.event.inputs.releaseType }}
     steps:
       - name: Setup node
         uses: actions/setup-node@v4
@@ -43,7 +52,7 @@ jobs:
           node-version: ${{ env.NODE_LTS_VERSION }}
           check-latest: true
 
-      - name: Clone Next.js repository
+      - name: Clone Lab Release repository
         run: git clone https://github.com/devjiwonchoi/lab-releases.git --depth=25 --single-branch --branch ${GITHUB_REF_NAME:-canary} .
 
       - name: Check token
@@ -89,24 +98,10 @@ jobs:
             pnpm-store-${{ hashFiles('pnpm-lock.yaml') }}
 
       - run: pnpm install
-
       - run: pnpm run build
 
-      - name: Create Release Pull Request or Publish to NPM
-        id: changesets
+      - name: Create Release Pull Request
+        id: version-packages
         uses: changesets/action@v1
         with:
           version: pnpm ci:version
-          publish: pnpm ci:publish
-          title: Version Packages (${{ github.event.inputs.releaseType }})
-          commit: Version Packages (${{ github.event.inputs.releaseType }})
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
-          RELEASE_TYPE: ${{ github.event.inputs.releaseType }}
-
-      - name: Add label to PR
-        if: steps.changesets.outputs.pullRequestNumber
-        run: 'gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --add-label "created-by: CI"'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

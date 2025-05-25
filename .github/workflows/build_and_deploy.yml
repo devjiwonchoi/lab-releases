@@ -1,0 +1,55 @@
+# Update all mentions of this name in vercel-packages when changing.
+name: build-and-deploy
+
+on:
+  push:
+  # we need the preview tarball for deploy tests
+  pull_request:
+    types: [opened, synchronize]
+  workflow_dispatch:
+
+jobs:
+  publishRelease:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          check-latest: true
+      - name: Setup corepack
+        run: |
+          npm i -g corepack@0.31
+          corepack enable
+
+      # New release process
+      - name: Publish to NPM
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          publish: pnpm ci:publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
+
+      # Add label to verify the PR is created from this workflow.
+      - name: Add label to PR
+        if: steps.changesets.outputs.pullRequestNumber
+        run: 'gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --add-label "created-by: CI"'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Send a Slack notification of the publish status
+      #   run: pnpm tsx scripts/release/slack.ts
+      #   env:
+      #     SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
+      #     RELEASE_STATUS: ${{ steps.changesets.outputs.published }}
+      #     WORKFLOW_LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      #     WORKFLOW_ACTOR: ${{ github.actor }}
+
+      # - name: Upload npm log artifact
+      #   if: steps.changesets.outputs.published == 'true'
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: npm-publish-logs
+      #     path: /home/runner/.npm/_logs/*
