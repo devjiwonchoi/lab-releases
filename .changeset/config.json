@@ -8,7 +8,7 @@
   "fixed": [],
   "linked": [],
   "access": "public",
-  "baseBranch": "canary",
+  "baseBranch": "release/dry-run",
   "updateInternalDependencies": "patch",
   "ignore": []
 }
