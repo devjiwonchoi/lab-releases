@@ -1,5 +1,14 @@
 # @devjiwonchoi/lab-releases-main-70d04b9b-5a2d-40ec-b656-d130fb8e0413
 
+## 1.1.7-canary.2
+
+### Patch Changes
+
+- [`5609ed3`](https://github.com/devjiwonchoi/lab-releases/commit/5609ed35252b02c894d55df7e994d59006cc944b) Thanks [@devjiwonchoi](https://github.com/devjiwonchoi)! - test patch
+
+- Updated dependencies [[`5609ed3`](https://github.com/devjiwonchoi/lab-releases/commit/5609ed35252b02c894d55df7e994d59006cc944b)]:
+  - @devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413@1.1.0-canary.6
+
 ## 1.1.7-canary.1
 
 ### Patch Changes
