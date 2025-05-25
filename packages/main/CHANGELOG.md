@@ -1,5 +1,14 @@
 # @devjiwonchoi/lab-releases-main-70d04b9b-5a2d-40ec-b656-d130fb8e0413
 
+## 1.1.10
+
+### Patch Changes
+
+- [#25](https://github.com/devjiwonchoi/lab-releases/pull/25) [`23455fe`](https://github.com/devjiwonchoi/lab-releases/commit/23455feb5a1be985b6c45e0949a720dcc6d87e4b) Thanks [@devjiwonchoi](https://github.com/devjiwonchoi)! - test
+
+- Updated dependencies [[`23455fe`](https://github.com/devjiwonchoi/lab-releases/commit/23455feb5a1be985b6c45e0949a720dcc6d87e4b)]:
+  - @devjiwonchoi/lab-releases-sub-70d04b9b-5a2d-40ec-b656-d130fb8e0413@1.1.3
+
 ## 1.1.9
 
 ### Patch Changes
