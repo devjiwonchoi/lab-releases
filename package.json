@@ -2,7 +2,7 @@
   "scripts": {
     "build": "echo 'building...'",
     "ci:version": "tsx ./scripts/release/version-packages.ts",
-    "ci:publish": "changeset publish"
+    "ci:publish": "tsx ./scripts/release/publish-npm.ts"
   },
   "devDependencies": {
     "@changesets/changelog-github": "0.5.1",
