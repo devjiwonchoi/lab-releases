@@ -2,6 +2,7 @@ import execa from 'execa'
 import { existsSync } from 'fs'
 import { writeFile, readFile, unlink } from 'fs/promises'
 import { join } from 'path'
+import { Octokit } from 'octokit'
 
 // NOTE: This type may change over time.
 type ChangesetStatusJson = {
@@ -22,10 +23,57 @@ type ChangesetStatusJson = {
   }[]
 }
 
-async function versionPackages() {
-  console.log({ GITHUB_REF_NAME: process.env.GITHUB_REF_NAME })
-  const preConfigPath = join(process.cwd(), '.changeset', 'pre.json')
+const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN })
 
+async function preventRaceCondition(releaseType: string | undefined) {
+  // if (
+  //   process.env.GITHUB_EVENT_NAME !== 'schedule' ||
+  //   releaseType !== 'canary'
+  // ) {
+  //   return
+  // }
+
+  console.log({
+    GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF,
+    releaseType,
+    GITHUB_EVENT_NAME: process.env.GITHUB_EVENT_NAME,
+  })
+
+  const { data: pullRequests } = await octokit.rest.pulls.list({
+    owner: 'devjiwonchoi',
+    repo: 'lab-releases',
+    state: 'open',
+    sort: 'created',
+    direction: 'desc',
+    head: process.env.GITHUB_HEAD_REF,
+    per_page: 100,
+  })
+
+  const existingReleasePRs = pullRequests.filter((pr) => {
+    console.log({ pr_head_ref: pr.head.ref })
+    return pr.title.startsWith('Version Packages')
+  })
+
+  if (existingReleasePRs.length > 0) {
+    console.log(
+      '▲   Skipping the release process because there is an open release PR.'
+    )
+    console.log(
+      '▲   Existing release PR(s):',
+      existingReleasePRs.map((pr) => `- ${pr.html_url}`).join('\n')
+    )
+    process.exit(0)
+  }
+}
+
+async function versionPackages() {
+  // If this script is triggered via cron job for canary release,
+  // and if there's an open release PR in the target branch, skip
+  // the release process to prevent race condition of overwriting
+  // the ongoing release process.
+  await preventRaceCondition(process.env.RELEASE_TYPE)
+
+  const preConfigPath = join(process.cwd(), '.changeset', 'pre.json')
   // Exit previous pre mode to prepare for the next release.
   if (existsSync(preConfigPath)) {
     if (require(preConfigPath).mode !== 'exit') {
