@@ -26,12 +26,14 @@ type ChangesetStatusJson = {
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN })
 
 async function preventRaceCondition(releaseType: string | undefined) {
-  if (
-    process.env.GITHUB_EVENT_NAME !== 'schedule' ||
-    releaseType !== 'canary'
-  ) {
-    return
-  }
+  // if (
+  //   process.env.GITHUB_EVENT_NAME !== 'schedule' ||
+  //   releaseType !== 'canary'
+  // ) {
+  //   return
+  // }
+
+  console.log({ releaseType, eventName: process.env.GITHUB_EVENT_NAME })
 
   const { data: pullRequests } = await octokit.rest.pulls.list({
     owner: 'devjiwonchoi',
