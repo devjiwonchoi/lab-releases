@@ -3,6 +3,7 @@ import { existsSync } from 'fs'
 import { writeFile, readFile, unlink } from 'fs/promises'
 import { join } from 'path'
 import { Octokit } from 'octokit'
+import { setFailed, setOutput } from '@actions/core'
 
 // NOTE: This type may change over time.
 type ChangesetStatusJson = {
@@ -55,14 +56,9 @@ async function preventRaceCondition(releaseType: string | undefined) {
   })
 
   if (existingReleasePRs.length > 0) {
-    console.log(
+    setFailed(
       '▲   Skipping the release process because there is an open release PR.'
     )
-    console.log(
-      '▲   Existing release PR(s):',
-      existingReleasePRs.map((pr) => `- ${pr.html_url}`).join('\n')
-    )
-    process.exit(0)
   }
 }
 
