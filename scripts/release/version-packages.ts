@@ -3,7 +3,6 @@ import { existsSync } from 'fs'
 import { writeFile, readFile, unlink } from 'fs/promises'
 import { join } from 'path'
 import { Octokit } from 'octokit'
-import { setFailed, setOutput } from '@actions/core'
 
 // NOTE: This type may change over time.
 type ChangesetStatusJson = {
@@ -26,48 +25,42 @@ type ChangesetStatusJson = {
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN })
 
-async function preventRaceCondition(releaseType: string | undefined) {
-  // if (
-  //   process.env.GITHUB_EVENT_NAME !== 'schedule' ||
-  //   releaseType !== 'canary'
-  // ) {
-  //   return
-  // }
-
-  console.log({
-    GITHUB_REF_NAME: process.env.GITHUB_REF_NAME,
-    releaseType,
-    GITHUB_EVENT_NAME: process.env.GITHUB_EVENT_NAME,
-  })
-
-  const { data: pullRequests } = await octokit.rest.pulls.list({
-    owner: 'devjiwonchoi',
-    repo: 'lab-releases',
-    state: 'open',
-    sort: 'created',
-    direction: 'desc',
-    head: process.env.GITHUB_REF_NAME,
-    per_page: 100,
-  })
-
-  const existingReleasePRs = pullRequests.filter((pr) => {
-    console.log({ pr_head_ref: pr.head.ref })
-    return pr.title.startsWith('Version Packages')
-  })
-
-  if (existingReleasePRs.length > 0) {
-    setFailed(
-      '▲   Skipping the release process because there is an open release PR.'
-    )
-  }
-}
+async function preventRaceCondition(releaseType: string | undefined) {}
 
 async function versionPackages() {
   // If this script is triggered via cron job for canary release,
   // and if there's an open release PR in the target branch, skip
   // the release process to prevent race condition of overwriting
   // the ongoing release process.
-  await preventRaceCondition(process.env.RELEASE_TYPE)
+  // if (
+  //   process.env.GITHUB_EVENT_NAME === 'schedule' &&
+  //   releaseType === 'canary'
+  // ) {
+  const { data: pullRequests } = await octokit.rest.pulls.list({
+    owner: 'devjiwonchoi',
+    repo: 'lab-releases',
+    head: 'canary',
+    state: 'open',
+    sort: 'created',
+    direction: 'desc',
+    per_page: 100,
+  })
+
+  const existingReleasePRs = pullRequests.filter((pr) => {
+    return pr.title.startsWith('Version Packages')
+  })
+
+  if (existingReleasePRs.length > 0) {
+    console.log(
+      '▲   Skipping the release process because there is an open release PR.'
+    )
+    console.log(
+      '▲   Existing release PR(s):',
+      existingReleasePRs.map((pr) => `- ${pr.html_url}`).join('\n')
+    )
+    return
+  }
+  // }
 
   const preConfigPath = join(process.cwd(), '.changeset', 'pre.json')
   // Exit previous pre mode to prepare for the next release.
