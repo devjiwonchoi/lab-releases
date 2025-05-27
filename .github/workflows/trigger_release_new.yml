@@ -65,7 +65,7 @@ jobs:
           FREEZE_PR=$(gh pr list --label "Freeze: Release" --state open --json number --jq '.[0].number // empty')
           if [ ! -z "$FREEZE_PR" ]; then
             echo "Found existing PR #$FREEZE_PR with 'Freeze: Release' label. Skipping workflow..."
-            exit 0
+            exit 1
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
