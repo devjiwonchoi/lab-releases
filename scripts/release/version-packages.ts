@@ -34,7 +34,7 @@ async function preventRaceCondition(releaseType: string | undefined) {
   // }
 
   console.log({
-    GITHUB_HEAD_REF: process.env.GITHUB_HEAD_REF,
+    GITHUB_REF_NAME: process.env.GITHUB_REF_NAME,
     releaseType,
     GITHUB_EVENT_NAME: process.env.GITHUB_EVENT_NAME,
   })
@@ -45,7 +45,7 @@ async function preventRaceCondition(releaseType: string | undefined) {
     state: 'open',
     sort: 'created',
     direction: 'desc',
-    head: process.env.GITHUB_HEAD_REF,
+    head: process.env.GITHUB_REF_NAME,
     per_page: 100,
   })
 
