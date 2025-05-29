@@ -55,7 +55,9 @@ jobs:
             echo "value=automated-preview" >> $GITHUB_OUTPUT
           fi
       - name: Print deploy target
-        run: echo "Deploy target is '${{ steps.deploy-target.outputs.value }}'"
+        run: |
+          echo "Deploy target is '${{ steps.deploy-target.outputs.value }}'"
+          echo "DRY_RUN is '${{ github.ref == 'refs/heads/release/dry-run' }}'"
 
       # New release process
       - name: Publish to NPM
