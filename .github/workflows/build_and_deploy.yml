@@ -69,17 +69,6 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
           DRY_RUN: ${{ github.ref == 'refs/heads/release/dry-run' }}
 
-      # - name: Send a Slack notification of the publish status
-      #   run: pnpm tsx scripts/release/slack.ts
-      #   env:
-      #     SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-      #     RELEASE_STATUS: ${{ steps.changesets.outputs.published }}
-      #     WORKFLOW_LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-      #     WORKFLOW_ACTOR: ${{ github.actor }}
-
-      # - name: Upload npm log artifact
-      #   if: steps.changesets.outputs.published == 'true'
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: npm-publish-logs
-      #     path: /home/runner/.npm/_logs/*
+      - name: Print published packages
+        if: ${{ steps.deploy-target.outputs.value != 'skipped' }}
+        run: echo '{"published":${{ steps.changesets.outputs.published }}}'
