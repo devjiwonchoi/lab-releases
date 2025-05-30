@@ -23,18 +23,18 @@ jobs:
       - name: Save PR labels to variable
         id: save-labels
         run: |
-          PR_LABELS='${{ toJson(github.event.pull_request.labels.*.name) }}'
+          PR_LABELS=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | jq -c .)
           echo "PR_LABELS=$PR_LABELS" >> $GITHUB_OUTPUT
           echo "PR Labels: $PR_LABELS"
 
       - name: Determine if PR should be merged
         id: should-merge
         run: |
-          HAS_CI_LABEL=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | jq 'contains(["created-by: CI"])')
+          HAS_CI_LABEL=$(echo '${{ steps.save-labels.outputs.PR_LABELS }}' | jq 'contains(["created-by: CI"])')
           echo "Has 'created-by: CI' label: $HAS_CI_LABEL"
           echo "HAS_CI_LABEL=$HAS_CI_LABEL" >> $GITHUB_OUTPUT
 
-          HAS_FREEZE_LABEL=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | jq 'contains(["Freeze: Scheduled Release"])')
+          HAS_FREEZE_LABEL=$(echo '${{ steps.save-labels.outputs.PR_LABELS }}' | jq 'contains(["Freeze: Scheduled Release"])')
           echo "Has 'Freeze: Scheduled Release' label: $HAS_FREEZE_LABEL"
           echo "HAS_FREEZE_LABEL=$HAS_FREEZE_LABEL" >> $GITHUB_OUTPUT
 
