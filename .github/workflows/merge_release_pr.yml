@@ -17,7 +17,7 @@ jobs:
     # If it has "Freeze: Scheduled Release" label, it means that this
     # release PR was triggered manually, assuming we might want to review it.
     if: >-
-      github.event.pull_request.user.login == 'vercel-release-bot' &&
+      github.event.pull_request.user.login == 'devjiwonchoi' &&
       github.event.pull_request.title == 'Version Packages (canary)' &&
       contains(github.event.pull_request.labels.*.name, 'created-by: CI') &&
       !contains(github.event.pull_request.labels.*.name, 'Freeze: Scheduled Release')

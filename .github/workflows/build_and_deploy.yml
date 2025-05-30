@@ -8,9 +8,18 @@ on:
     types: [opened, synchronize]
   workflow_dispatch:
 
+env:
+  # This will become "true" if the latest commit (merged release PR) is either:
+  # - "Version Packages (#<number>)"
+  # - "Version Pacakges (canary/rc) (#<number>)"
+  # set from scripts/check-is-release.js
+  __NEW_RELEASE: 'false'
+
 jobs:
-  publishRelease:
+  deploy-target:
     runs-on: ubuntu-latest
+    outputs:
+      value: ${{ steps.deploy-target.outputs.value }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -24,10 +33,6 @@ jobs:
         run: |
           npm i -g corepack@0.31
           corepack enable
-
-      - name: Install dependencies
-        run: pnpm install
-
       - name: Determine deploy target
         # 'force-preview' performs a full preview build but only if acknowledged i.e. workflow_dispatch
         # 'automated-preview' for pushes on branches other than 'canary' for integration testing.
@@ -36,10 +41,11 @@ jobs:
         run: |
           # TODO: Remove the new release check once the new release workflow is fully replaced.
           RELEASE_CHECK=$(node ./scripts/check-is-release.js 2> /dev/null || :)
-          if [[ $RELEASE_CHECK = "new-release" ]];
+          if [[ $RELEASE_CHECK == 'new-release' ]];
           then
             echo "__NEW_RELEASE=true" >> $GITHUB_ENV
-          elif [[ $RELEASE_CHECK = v* ]];
+            echo "value=production" >> $GITHUB_OUTPUT
+          elif [[ $RELEASE_CHECK == v* ]];
           then
             echo "value=production" >> $GITHUB_OUTPUT
           elif [ '${{ github.ref }}' == 'refs/heads/canary' ]
@@ -55,25 +61,79 @@ jobs:
             echo "value=automated-preview" >> $GITHUB_OUTPUT
           fi
       - name: Print deploy target
+        run: echo "Deploy target is '${{ steps.deploy-target.outputs.value }}'"
+
+  publishRelease:
+    if: ${{ needs.deploy-target.outputs.value == 'production' }}
+    name: Potentially publish release
+    runs-on: ubuntu-latest
+    needs:
+      - deploy-target
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
+    steps:
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          check-latest: true
+      - name: Setup corepack
         run: |
-          echo "Deploy target is '${{ steps.deploy-target.outputs.value }}'"
-          echo "DRY_RUN is '${{ github.ref == 'refs/heads/release/dry-run' }}'"
+          npm i -g corepack@0.31
+          corepack enable
+
+      # https://github.com/actions/virtual-environments/issues/1187
+      - name: tune linux network
+        run: sudo ethtool -K eth0 tx off rx off
+
+      - uses: actions/cache@v4
+        timeout-minutes: 5
+        id: restore-build
+        with:
+          path: ./*
+          # Cache includes repo checkout which is required for later scripts
+          fail-on-cache-miss: true
+          key: ${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt }}
+          restore-keys: |
+            ${{ github.sha }}-${{ github.run_number }}
+            ${{ github.sha }}-${{ github.run_number }}-${{ github.run_attempt}}
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: next-swc-binaries-*
+          merge-multiple: true
+          path: packages/next-swc/native
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wasm-binaries-*
+          merge-multiple: true
+          path: crates/wasm
+
+      - run: npm i -g npm@10.4.0 # need latest version for provenance (pinning to avoid bugs)
+      - run: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run: ./scripts/publish-native.js
+      # Legacy release process
+      - run: ./scripts/publish-release.js
+        if: ${{ env.__NEW_RELEASE == 'false' }}
+        env:
+          RELEASE_BOT_GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
 
       # New release process
       - name: Publish to NPM
-        if: ${{ steps.deploy-target.outputs.value != 'skipped' }}
         id: changesets
+        # TODO: Change to IS_RELEASE condition when new release becomes stable.
+        if: ${{ env.__NEW_RELEASE == 'true' }}
         uses: changesets/action@v1
         with:
           publish: pnpm ci:publish
-          # Don't create GH release when is dry run. There is no good way to test it
-          # as draft depending on changesets/action ATM.
+          # Don't create GH release when is dry run. There is no good way to test
+          # GH Release as draft yet depending on changesets/action.
           createGithubReleases: ${{ github.ref != 'refs/heads/release/dry-run' }}
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
           DRY_RUN: ${{ github.ref == 'refs/heads/release/dry-run' }}
-
-      - name: Print published packages
-        if: ${{ steps.deploy-target.outputs.value != 'skipped' }}
-        run: echo '{"published":${{ steps.changesets.outputs.published }}}'
