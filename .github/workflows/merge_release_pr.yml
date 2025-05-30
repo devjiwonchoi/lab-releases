@@ -18,12 +18,38 @@ jobs:
     # release PR was triggered manually, assuming we might want to review it.
     if: >-
       github.event.pull_request.user.login == 'devjiwonchoi' &&
-      github.event.pull_request.title == 'Version Packages (canary)' &&
-      contains(github.event.pull_request.labels.*.name, 'created-by: CI') &&
-      !contains(github.event.pull_request.labels.*.name, 'Freeze: Scheduled Release')
+      github.event.pull_request.title == 'Version Packages (canary)'
     steps:
+      - name: Save PR labels to variable
+        id: save-labels
+        run: |
+          PR_LABELS='${{ toJson(github.event.pull_request.labels.*.name) }}'
+          echo "PR_LABELS=$PR_LABELS" >> $GITHUB_OUTPUT
+          echo "PR Labels: $PR_LABELS"
+
+      - name: Determine if PR should be merged
+        id: should-merge
+        run: |
+          HAS_CI_LABEL=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | jq 'contains(["created-by: CI"])')
+          echo "Has 'created-by: CI' label: $HAS_CI_LABEL"
+          echo "HAS_CI_LABEL=$HAS_CI_LABEL" >> $GITHUB_OUTPUT
+
+          HAS_FREEZE_LABEL=$(echo '${{ toJson(github.event.pull_request.labels.*.name) }}' | jq 'contains(["Freeze: Scheduled Release"])')
+          echo "Has 'Freeze: Scheduled Release' label: $HAS_FREEZE_LABEL"
+          echo "HAS_FREEZE_LABEL=$HAS_FREEZE_LABEL" >> $GITHUB_OUTPUT
+
+          if [[ "$HAS_CI_LABEL" == "true" && "$HAS_FREEZE_LABEL" == "false" ]]; then
+            SHOULD_MERGE="true"
+          else
+            SHOULD_MERGE="false"
+          fi
+
+          echo "Should merge: $SHOULD_MERGE"
+          echo "SHOULD_MERGE=$SHOULD_MERGE" >> $GITHUB_OUTPUT
+
       - name: Bypass required status checks and merge PR
+        if: steps.should-merge.outputs.SHOULD_MERGE == 'true'
         run: gh pr merge --admin --squash "$PR_URL"
         env:
-          PR_URL: ${{github.event.pull_request.html_url}}
-          GH_TOKEN: ${{secrets.RELEASE_BOT_GITHUB_TOKEN}}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
