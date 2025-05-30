@@ -147,9 +147,10 @@ jobs:
       - name: Add label to PR
         if: steps.changesets.outputs.pullRequestNumber
         run: |
-          gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --add-label "created-by: CI"
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --add-label "Freeze: Scheduled Release"
+            gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --add-label "created-by: CI" --add-label "Freeze: Scheduled Release"
+          else
+            gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --add-label "created-by: CI"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
