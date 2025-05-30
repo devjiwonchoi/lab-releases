@@ -8,18 +8,12 @@ on:
     types: [opened, synchronize]
   workflow_dispatch:
 
-env:
-  # This will become "true" if the latest commit (merged release PR) is either:
-  # - "Version Packages (#<number>)"
-  # - "Version Pacakges (canary/rc) (#<number>)"
-  # set from scripts/check-is-release.js
-  __NEW_RELEASE: 'false'
-
 jobs:
   deploy-target:
     runs-on: ubuntu-latest
     outputs:
-      value: ${{ steps.deploy-target.outputs.value }}
+      deploy-target: ${{ steps.deploy-target.outputs.value }}
+      release-type: ${{ steps.deploy-target.outputs.release-type }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -43,8 +37,8 @@ jobs:
           RELEASE_CHECK=$(node ./scripts/check-is-release.js 2> /dev/null || :)
           if [[ $RELEASE_CHECK == 'new-release' ]];
           then
-            echo "__NEW_RELEASE=true" >> $GITHUB_ENV
             echo "value=production" >> $GITHUB_OUTPUT
+            echo "release-type=new-release" >> $GITHUB_OUTPUT
           elif [[ $RELEASE_CHECK == v* ]];
           then
             echo "value=production" >> $GITHUB_OUTPUT
@@ -64,7 +58,7 @@ jobs:
         run: echo "Deploy target is '${{ steps.deploy-target.outputs.value }}'"
 
   publishRelease:
-    if: ${{ needs.deploy-target.outputs.value == 'production' }}
+    if: ${{ needs.deploy-target.outputs.deploy-target == 'production' }}
     name: Potentially publish release
     runs-on: ubuntu-latest
     needs:
@@ -118,7 +112,7 @@ jobs:
       - run: ./scripts/publish-native.js
       # Legacy release process
       - run: ./scripts/publish-release.js
-        if: ${{ env.__NEW_RELEASE == 'false' }}
+        if: ${{ needs.deploy-target.outputs.release-type != 'new-release' }}
         env:
           RELEASE_BOT_GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
 
@@ -126,7 +120,7 @@ jobs:
       - name: Publish to NPM
         id: changesets
         # TODO: Change to IS_RELEASE condition when new release becomes stable.
-        if: ${{ env.__NEW_RELEASE == 'true' }}
+        if: ${{ needs.deploy-target.outputs.release-type == 'new-release' }}
         uses: changesets/action@v1
         with:
           publish: pnpm ci:publish
