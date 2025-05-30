@@ -61,6 +61,20 @@ async function publishNpm() {
     throw new Error('NPM_TOKEN is not set')
   }
 
+  console.log(
+    'Running command: "pnpm config set //registry.npmjs.org/:_authToken $NPM_TOKEN'
+  )
+  await execa(
+    'pnpm',
+    [
+      'config',
+      'set',
+      '//registry.npmjs.org/:_authToken',
+      process.env.NPM_TOKEN,
+    ],
+    { stdio: 'inherit' }
+  )
+
   const packagesDir = join(process.cwd(), 'packages')
   const packageDirs = await readdir(packagesDir, {
     withFileTypes: true,
