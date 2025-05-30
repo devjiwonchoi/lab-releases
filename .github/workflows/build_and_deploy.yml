@@ -70,6 +70,11 @@ jobs:
         with:
           node-version: 20
           check-latest: true
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
       - name: Setup corepack
         run: |
           npm i -g corepack@0.31
