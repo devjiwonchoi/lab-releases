@@ -54,7 +54,7 @@ jobs:
         run: echo "Deploy target is '${{ steps.deploy-target.outputs.value }}'"
 
   publishRelease:
-    if: ${{ needs.deploy-target.outputs.deploy-target == 'production' }}
+    if: ${{ needs.deploy-target.outputs.deploy-target == 'production' && github.event_name == 'push' && (github.ref == 'refs/heads/canary' || github.ref == 'refs/heads/release/dry-run') }}
     name: Potentially publish release
     runs-on: ubuntu-latest
     needs:
