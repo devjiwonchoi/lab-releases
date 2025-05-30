@@ -65,16 +65,14 @@ jobs:
     env:
       NPM_TOKEN: ${{ secrets.NPM_TOKEN_ELEVATED }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: 20
           check-latest: true
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
-
       - name: Setup corepack
         run: |
           npm i -g corepack@0.31
