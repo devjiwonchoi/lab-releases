@@ -38,11 +38,13 @@ permissions:
 
 jobs:
   start:
-    # Only run on `canary` or `release/dry-run` branch.
-    if: >-
-      github.repository_owner == 'devjiwonchoi' &&
-      (github.ref == 'refs/heads/canary' || github.ref == 'refs/heads/release/dry-run')
+    if: github.repository_owner == 'devjiwonchoi'
     runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+      # we build a dev binary for use in CI so skip downloading
+      # canary next-swc binaries in the monorepo
+      NEXT_SKIP_NATIVE_POSTINSTALL: 1
 
     environment: release-${{ github.event.inputs.releaseType }}
     steps:
@@ -60,13 +62,20 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
 
-      - name: Check for existing Freeze Scheduled Release PR
+      - name: Check for existing Freeze Scheduled Release PR and skip if exists
         if: ${{ github.event_name == 'schedule' }}
         run: |
-          FREEZE_PR=$(gh pr list --label "Freeze: Scheduled Release" --state open --json number --jq '.[0].number // empty')
-          if [ ! -z "$FREEZE_PR" ]; then
+          # Check if there is an open pull request labeled "Freeze: Scheduled Release"
+          freeze_pr_number=$(gh pr list \
+            --label "Freeze: Scheduled Release" \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')
+
+          # If there is an open PR with the "Freeze: Scheduled Release" label, skip scheduled release.
+          if [ -n "$freeze_pr_number" ]; then
             echo "Found existing PR with 'Freeze: Scheduled Release' label. Skipping scheduled release..."
-            echo "PR: https://github.com/${{ github.repository }}/pull/$FREEZE_PR"
+            echo "PR: https://github.com/${{ github.repository }}/pull/$freeze_pr_number"
             exit 1
           fi
         env:
@@ -112,6 +121,18 @@ jobs:
       - run: pnpm install
       - run: pnpm run build
 
+      # This script is not passed to the `with.version` script of changesets/action
+      # because it conflicts with how they add `(<pre-tag>)` to the release PR title.
+      # They get the pre tag before running the version script, so when we process
+      # modifying the tag during the version script, they use the previous tag, which
+      # doesn't match the output. For example, we are releasing stable but the PR title
+      # can be "Version Packages (canary)". We're opting out instead of sending upstream
+      # because there will be the exact opposite needs as well.
+      - name: Prepare Version Packages
+        run: pnpm tsx scripts/release/version-packages.ts
+        env:
+          RELEASE_TYPE: ${{ github.event.inputs.releaseType }}
+
       - name: Create Release Pull Request
         id: changesets
         uses: changesets/action@v1
@@ -119,7 +140,6 @@ jobs:
           version: pnpm ci:version
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}
-          RELEASE_TYPE: ${{ github.event.inputs.releaseType }}
 
       # Add "created-by: CI" label to verify the PR is created from this workflow.
       # If this workflow is manually triggered, add "Freeze: Scheduled Release" label
@@ -132,4 +152,4 @@ jobs:
             gh pr edit ${{ steps.changesets.outputs.pullRequestNumber }} --add-label "Freeze: Scheduled Release"
           fi
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.RELEASE_BOT_GITHUB_TOKEN }}

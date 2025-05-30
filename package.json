@@ -1,7 +1,7 @@
 {
   "scripts": {
     "build": "echo 'building...'",
-    "ci:version": "tsx ./scripts/release/version-packages.ts",
+    "ci:version": "pnpm changeset version && pnpm install --no-frozen-lockfile",
     "ci:publish": "tsx ./scripts/release/publish-npm.ts"
   },
   "devDependencies": {
